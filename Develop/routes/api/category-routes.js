@@ -8,7 +8,9 @@ router.get('/', async (req, res) => {
   // be sure to include its associated Products
   const categoryData = await Category.findAll({
   include: [
+    //
     { model: Product,
+      //attributes are what is returned about the product. We might only need product_name if we're trying to return the associated products.
       attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
     } 
   ]
@@ -46,10 +48,41 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   // update a category by its `id` value
+  Category.update({
+    category_name: req.body.category_name
+  },
+  {
+    where: {
+      id: req.params.id
+    }
+  }
+  )
+  .then((updatedCategory) => {
+    // Sends the updated category as a json response
+    res.json(updatedCategory);
+  })
+  .catch((err) => res.json(err));
 });
 
 router.delete('/:id', (req, res) => {
   // delete a category by its `id` value
+  Category.destroy({
+    where: {
+      id: req.params.id
+    }
+  }
+  )
+  .then(data => {
+    if (!data) {
+      res.status(404).json({message: "Sorry, we couldn't find a category with that ID"});
+      return
+    }
+    res.json(data)
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+});
 });
 
 module.exports = router;
