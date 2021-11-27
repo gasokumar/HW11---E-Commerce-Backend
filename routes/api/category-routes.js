@@ -3,51 +3,61 @@ const { Category, Product } = require('../../models');
 
 // The `/api/categories` endpoint
 
-router.get('/', async (req, res) => {
+router.get('/',  (req, res) => {
    // find all categories
   // be sure to include its associated Products
-  const categoryData = await Category.findAll({
+  // WORKING
+  Category.findAll({
   include: [
     //
     { model: Product,
       //attributes are what is returned about the product. We might only need product_name if we're trying to return the associated products.
-      attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
+      attributes: ['product_name']
     } 
   ]
 })
-return categoryData
- 
+.then((allCategories) => {
+  res.json(allCategories);
+});
 });
 
-router.get('/:id', (req, res) => {
-  const dbCategoryData = await Category.findByPk(req.params.id, {
+router.get('/:id',  (req, res) => {
+  // find one category by its `id` value
+  // be sure to include its associated Products
+  // WORKING
+  Category.findByPk(req.params.id, {
     include: [
       {model: Product,
       attributes: [
-        'id', 'product_name', 'price', 'stock', 'category_id'
+         'product_name'
         ]
       }
     ]
   })
-  return dbCategoryData
-  // find one category by its `id` value
-  // be sure to include its associated Products
+  .then((CategorybyID) => {
+    res.json(CategorybyID);
+  });
 });
 
 router.post('/', (req, res) => {
   // create a new category
-  try {
-    const newCategory = await Category.create({
-      category_name: req.body.category_name
-    })
+  //WORKING
+  //req.body should look like this: 
+  // {"category_name: "newCategory"}
+  Category.create({
+    category_name: req.body.category_name
+  })
+  .then((newCategory) => {
     res.json(newCategory);
-  } catch (err) {
+  })
+  .catch((err) => {
     res.json(err);
-  }
+  });
 });
 
 router.put('/:id', (req, res) => {
   // update a category by its `id` value
+  //WORKING, but response sent back is [1]
   Category.update({
     category_name: req.body.category_name
   },
@@ -66,23 +76,16 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete a category by its `id` value
+  //WORKING but response sent back is 1
   Category.destroy({
     where: {
-      id: req.params.id
-    }
-  }
-  )
-  .then(data => {
-    if (!data) {
-      res.status(404).json({message: "Sorry, we couldn't find a category with that ID"});
-      return
-    }
-    res.json(data)
+      id: req.params.id,
+    },
   })
-  .catch(err => {
-    console.log(err);
-    res.status(500).json(err);
-});
+    .then((deletedCategory) => {
+      res.json(deletedCategory);
+    })
+    .catch((err) => res.json(err));
 });
 
 module.exports = router;
