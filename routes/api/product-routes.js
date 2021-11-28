@@ -7,8 +7,9 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 router.get('/', (req, res) => {
    // find all products
   // be sure to include its associated Category and Tag data
+  //WORKING
   Product.findAll({
-    attributes: ['product_name', 'price','stock'],
+    attributes: ['id','product_name', 'price','stock'],
     include: [
        { model: Category,
         attributes: ['category_name']
@@ -29,6 +30,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  //WORKING
   Product.findByPk(req.params.id, {
     include: [
       {model: Category,
@@ -53,15 +55,17 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   /* req.body should look like this...
     {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
+      "product_name": "Basketball",
+      "price": "200.00",
+      "stock": "3",
+      "tagIds": "[1, 2, 3, 4]"
     }
   */
   Product.create(req.body)
     .then((product) => {
+      //WORKING but might need to ask for help with what the rest of the code does.
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
+
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
@@ -84,6 +88,7 @@ router.post('/', (req, res) => {
 // update product
 router.put('/:id', (req, res) => {
   // update product data
+  //WORKING but might need to ask for help on what the rest of the code does.
   Product.update(req.body, {
     where: {
       id: req.params.id,
@@ -125,6 +130,17 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete one product by its `id` value
+  //WORKING
+  Product.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((deletedProduct) => {
+      res.json(deletedProduct);
+    })
+    .catch((err) => res.json(err));
+
 });
 
 module.exports = router;
